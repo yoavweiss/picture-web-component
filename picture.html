@@ -1,0 +1,54 @@
+<element name="x-picture">
+	<template>
+		<style>
+			@host {
+				* {
+					display: inline;
+				}
+			}
+			img {
+				max-width: 100%;
+			}
+		</style>
+		<img src="{{xSource}}">
+	</template>
+	<script>
+		Polymer.register(this, {
+			xSource : '',
+			insertedCallback: function() {
+				this.findSource();
+				this.setAttribute( "role", "img" );
+				this.getElementsByTagName("img")[ 0 ].remove();
+			},
+			findSource: function() {
+				var sources = this.getElementsByTagName( "source" ),
+					matches = [];
+
+				for( var i = 0, l = sources.length; i < l; i++ ) {
+					var src = sources[ i ],
+						media = src.getAttribute( "media" );
+
+					if( !media || ( window.matchMedia && window.matchMedia( media ).matches ) ){
+						matches.push( src );						
+					}
+					this.bindListener( media );
+				}
+				this.selectSource( matches );
+			},
+			selectSource: function( srcs ) {
+				if( srcs.length ) {
+					var matchedSrc = srcs.pop(); // Currently last matched source.
+
+					this.xSource = matchedSrc.getAttribute( "src" );
+				}
+			},
+			bindListener: function( media ) {
+				var self = this;
+				window.matchMedia( media ).addListener(function() {
+					self.findSource();
+				});
+			}
+		});
+
+	</script>
+</element>
